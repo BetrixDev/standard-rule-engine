@@ -84,3 +84,11 @@ type IsBothObject<A, B> = A extends Record<RecordKey, unknown>
   : false;
 
 type IsClass<V> = V extends abstract new (...args: any) => any ? true : false;
+
+export type DeepReadonly<T> = T extends Function
+  ? T
+  : T extends Array<infer U>
+  ? ReadonlyArray<DeepReadonly<U>>
+  : T extends object
+  ? { readonly [P in keyof T]: DeepReadonly<T[P]> }
+  : T;

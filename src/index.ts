@@ -1,10 +1,13 @@
 import { z } from "zod";
 import { mergeDeep, standardValidate } from "./utils";
-import { Reconcile, EngineSingletonBase, SessionSingletonBase } from "./types";
+import {
+  Reconcile,
+  EngineSingletonBase,
+  SessionSingletonBase,
+  DeepReadonly,
+} from "./types";
 import clone from "clone";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-
-// Maybe engine class should expose a method to create a new session. The session would allow the user to pass in of their facts at different points in time, then run the rules.
 
 export type AnyEngine = Engine<any>;
 
@@ -39,6 +42,8 @@ class Session<
 
   fire() {
     for (const facts of this.insertedFacts) {
+      Object.freeze(facts);
+
       for (const rule of this.rules) {
         if (!rule.meta?.schema) {
           rule.handler(facts, { context: this.context });
@@ -98,9 +103,11 @@ class Engine<
   >(
     name: RuleName,
     handler: (
-      facts: FactsSchema extends StandardSchemaV1
-        ? StandardSchemaV1.InferOutput<FactsSchema>
-        : unknown,
+      facts: DeepReadonly<
+        FactsSchema extends StandardSchemaV1
+          ? StandardSchemaV1.InferOutput<FactsSchema>
+          : unknown
+      >,
       { context }: { context: Singleton["context"] }
     ) => void,
     meta?: {
