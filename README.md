@@ -4,19 +4,17 @@
 
 A rule engine that uses the standard schema to evaluate rule facts.
 
-
 Most of the current TypeScript / Some JavaScript code is from Elysia, and the API is very much inspired by Elysia
-
 
 ```ts
 // state and helpers are correctly inferred every step of the way
 // a rule is only evaluated if the schema matches the fact inputted
 
 const helperFromAnotherEngine = new Engine().context(
-  "log",
+  'log',
   (message: string) => {
     console.log(message);
-  }
+  },
 );
 
 const engine = new Engine()
@@ -33,9 +31,9 @@ const engine = new Engine()
     },
   })
   .rule(
-    "traffic-violation",
+    'traffic-violation',
     (facts, { context }) => {
-      context.log("logging in this rule");
+      context.log('logging in this rule');
       context.addFine(facts.violation.fine);
       context.addViolation(facts.violation.type);
 
@@ -53,17 +51,17 @@ const engine = new Engine()
           speed: z.number().optional(),
         }),
       }),
-    }
+    },
   );
 
 const session = engine.createSession();
 
 session.insert({
   violation: {
-    type: "Speeding",
-    date: new Date("2023-11-15"),
+    type: 'Speeding',
+    date: new Date('2023-11-15'),
     fine: 250.0,
-    location: "Main Street",
+    location: 'Main Street',
     speed: 65,
   },
 });

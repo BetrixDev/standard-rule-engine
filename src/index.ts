@@ -1,13 +1,13 @@
-import { z } from "zod";
-import { mergeDeep, standardValidate } from "./utils";
-import {
+import { z } from 'zod';
+import { mergeDeep, standardValidate } from './utils';
+import type {
   Reconcile,
   EngineSingletonBase,
   SessionSingletonBase,
   DeepReadonly,
-} from "./types";
-import clone from "clone";
-import type { StandardSchemaV1 } from "@standard-schema/spec";
+} from './types';
+import clone from 'clone';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 
 export type AnyEngine = Engine<any>;
 
@@ -20,15 +20,18 @@ type Rule = {
 };
 
 class Session<
-  const in out Singleton extends SessionSingletonBase = { context: {} }
+  const in out Singleton extends SessionSingletonBase = { context: {} },
 > {
-  "~types" = {
+  '~types' = {
     Singleton: {} as Singleton,
   };
 
   private insertedFacts: unknown[] = [];
 
-  constructor(public context: Singleton["context"], private rules: Rule[]) {}
+  constructor(
+    public context: Singleton['context'],
+    private rules: Rule[],
+  ) {}
 
   insert(facts: unknown) {
     this.insertedFacts.push(facts);
@@ -65,30 +68,30 @@ class Session<
 class Engine<
   const in out Singleton extends EngineSingletonBase = {
     context: {};
-  }
+  },
 > {
-  "~types" = {
+  '~types' = {
     Singleton: {} as Singleton,
   };
 
-  private initialContext = {} as Singleton["context"];
+  private initialContext = {} as Singleton['context'];
   private rules: Rule[] = [];
 
   context<const Name extends string | number | symbol, Value>(
     name: Name,
-    value: Value
+    value: Value,
   ): Engine<{
-    context: Reconcile<Singleton["context"], { [key in Name]: Value }>;
+    context: Reconcile<Singleton['context'], { [key in Name]: Value }>;
   }>;
   context<IncomingContext extends Record<string, unknown>>(
-    context: IncomingContext
+    context: IncomingContext,
   ): Engine<{
-    context: Reconcile<Singleton["context"], IncomingContext>;
+    context: Reconcile<Singleton['context'], IncomingContext>;
   }>;
   context(nameOrContext: string | Record<string, unknown>, value?: unknown) {
-    if (value === undefined && typeof nameOrContext === "object") {
+    if (value === undefined && typeof nameOrContext === 'object') {
       this.initialContext = mergeDeep(this.initialContext, nameOrContext);
-    } else if (typeof nameOrContext === "string") {
+    } else if (typeof nameOrContext === 'string') {
       this.initialContext = mergeDeep(this.initialContext, {
         [nameOrContext]: value,
       });
@@ -99,7 +102,7 @@ class Engine<
 
   rule<
     const RuleName extends string,
-    const FactsSchema extends StandardSchemaV1 | unknown
+    const FactsSchema extends StandardSchemaV1 | unknown,
   >(
     name: RuleName,
     handler: (
@@ -108,13 +111,13 @@ class Engine<
           ? StandardSchemaV1.InferOutput<FactsSchema>
           : unknown
       >,
-      { context }: { context: Singleton["context"] }
+      { context }: { context: Singleton['context'] },
     ) => void,
     meta?: {
       schema?: FactsSchema;
-    }
+    },
   ): Engine<{
-    context: Reconcile<Singleton["context"], { [key: string]: unknown }>;
+    context: Reconcile<Singleton['context'], { [key: string]: unknown }>;
   }> {
     this.rules.push({
       name,
@@ -128,15 +131,15 @@ class Engine<
   }
 
   use<const NewEngine extends AnyEngine>(
-    instance: NewEngine
+    instance: NewEngine,
   ): Engine<{
-    context: Singleton["context"] & NewEngine["~types"]["Singleton"]["context"];
+    context: Singleton['context'] & NewEngine['~types']['Singleton']['context'];
   }> {
     // TODO: Rules coming from other instances should inherit instance scoped schemas (when those exist)
     this.rules = [...this.rules, ...instance.rules];
     this.initialContext = mergeDeep(
       this.initialContext,
-      instance.initialContext
+      instance.initialContext,
     );
 
     return this as any;
@@ -144,7 +147,7 @@ class Engine<
 
   createSession() {
     return new Session<{
-      context: Singleton["context"];
+      context: Singleton['context'];
     }>(clone(this.initialContext), this.rules);
   }
 }
@@ -152,10 +155,10 @@ class Engine<
 // Fully type-safe :)
 
 const helperFromAnotherEngine = new Engine().context(
-  "log",
+  'log',
   (message: string) => {
     console.log(message);
-  }
+  },
 );
 
 const engine = new Engine()
@@ -172,9 +175,9 @@ const engine = new Engine()
     },
   })
   .rule(
-    "traffic-violation",
+    'traffic-violation',
     (facts, { context }) => {
-      context.log("logging in this rule");
+      context.log('logging in this rule');
       context.addFine(facts.violation.fine);
       context.addViolation(facts.violation.type);
 
@@ -192,17 +195,17 @@ const engine = new Engine()
           speed: z.number().optional(),
         }),
       }),
-    }
+    },
   );
 
 const session = engine.createSession();
 
 session.insert({
   violation: {
-    type: "Speeding",
-    date: new Date("2023-11-15"),
+    type: 'Speeding',
+    date: new Date('2023-11-15'),
     fine: 250.0,
-    location: "Main Street",
+    location: 'Main Street',
     speed: 65,
   },
 });
