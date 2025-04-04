@@ -11,7 +11,7 @@ The API is very much inspired by [Elysia](https://elysiajs.com)
 Engines are modular building blocks that can be combined and chained, allowing you to break down complex functionality into smaller, reusable components.
 
 ```ts
-import { Engine } from "standard-rule-engine"
+import { Engine } from "standard-rule-engine";
 
 // We can't do anything with this yet
 const engine = new Engine();
@@ -25,7 +25,7 @@ For our engine to actually do anything, we need to create rules that will be run
 > Notice the user of method chaining in the example below. This is crucial to allow for correct type inferencing throughout the library.
 
 ```ts
-import { Engine } from "standard-rule-engine"
+import { Engine } from "standard-rule-engine";
 
 const engine = new Engine()
   .rule("ruleName", (facts) => {
@@ -42,7 +42,7 @@ We can define a custom schema for a rule's facts so that the rule is only run wh
 
 
 ```ts
-import { Engine } from "standard-rule-engine"
+import { Engine } from "standard-rule-engine";
 import { z } from "zod";
 
 const engine = new Engine()
@@ -61,7 +61,7 @@ const engine = new Engine()
 For our rules to actually do anything meaningful, they have to mutate context. Context is defined on the Engine using the `.context()` method. Context is unique between sessions, and is shared between rules run in that session.
 
 ```ts
-import { Engine } from "standard-rule-engine"
+import { Engine } from "standard-rule-engine";
 
 const engine = new Engine()
   .context("amountOfRulesRun", 0)
@@ -76,7 +76,7 @@ const engine = new Engine()
 Context can be called with either the name of the key in context and value, or by passing in an object as the first and only parameter. When an object is passed in, it is deeply merged with the current contexts.
 
 ```ts
-import { Engine } from "standard-rule-engine"
+import { Engine } from "standard-rule-engine";
 
 const engine = new Engine()
   .context({ hello: "world" })
@@ -93,7 +93,7 @@ const engine = new Engine()
 Context can hold things other than primitives, such as functions. This is useful for having helper methods that can be shared between rules.
 
 ```ts
-import { Engine } from "standard-rule-engine"
+import { Engine } from "standard-rule-engine";
 
 const engine = new Engine()
   .context({ conditions: [] as string[] }) // Cast the array to more specific type for better inference
@@ -110,6 +110,9 @@ const engine = new Engine()
 Sessions are similar to how they behave in [NRules](https://nrules.net/index.html). They are how you actually execute rules against a set of facts.
 
 ```ts
+import { Engine } from "standard-rule-engine";
+import { z } from "zod";
+
 const engine = new Engine()
   .context("isAdult", false)
   .rule("isUserAdultRule", (facts, { context }) => {
