@@ -72,12 +72,14 @@ export function standardValidate<T extends StandardSchemaV1>(
   if (result.issues) {
     return {
       success: false as const,
+      issues: result.issues,
       data: null,
     };
   }
 
   return {
     success: true as const,
+    issues: null,
     data: result.value as StandardSchemaV1.InferOutput<T>,
   };
 }

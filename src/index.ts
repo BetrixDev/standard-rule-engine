@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { mergeDeep, standardValidate } from './utils';
 import type {
   Reconcile,
@@ -55,7 +54,9 @@ class Session<
 
         const validationResult = standardValidate(rule.meta.schema, facts);
 
-        if (!validationResult.success) continue;
+        if (!validationResult.success) {
+          continue;
+        }
 
         rule.handler(validationResult.data, {
           context: this.context,
@@ -65,7 +66,7 @@ class Session<
   }
 }
 
-class Engine<
+export class Engine<
   const in out Singleton extends EngineSingletonBase = {
     context: {};
   },
@@ -151,65 +152,3 @@ class Engine<
     }>(clone(this.initialContext), this.rules);
   }
 }
-
-// Fully type-safe :)
-
-const helperFromAnotherEngine = new Engine().context(
-  'log',
-  (message: string) => {
-    console.log(message);
-  },
-);
-
-const engine = new Engine()
-  .use(helperFromAnotherEngine)
-  .context({
-    totalFines: 0,
-    violations: [] as string[],
-    latestViolation: new Date(0),
-    addFine(fine: number) {
-      this.totalFines += fine;
-    },
-    addViolation(violation: string) {
-      this.violations.push(violation);
-    },
-  })
-  .rule(
-    'traffic-violation',
-    (facts, { context }) => {
-      context.log('logging in this rule');
-      context.addFine(facts.violation.fine);
-      context.addViolation(facts.violation.type);
-
-      if (facts.violation.date > context.latestViolation) {
-        context.latestViolation = facts.violation.date;
-      }
-    },
-    {
-      schema: z.object({
-        violation: z.object({
-          type: z.string(),
-          date: z.date(),
-          fine: z.number(),
-          location: z.string(),
-          speed: z.number().optional(),
-        }),
-      }),
-    },
-  );
-
-const session = engine.createSession();
-
-session.insert({
-  violation: {
-    type: 'Speeding',
-    date: new Date('2023-11-15'),
-    fine: 250.0,
-    location: 'Main Street',
-    speed: 65,
-  },
-});
-
-session.fire();
-
-console.log(session.context);
