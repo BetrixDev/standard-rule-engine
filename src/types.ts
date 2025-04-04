@@ -1,9 +1,9 @@
-export interface SingletonBase {
-  state: Record<string, unknown>;
-  helpers: Record<
-    string,
-    (state: this["state"]) => Partial<this["state"]> | void
-  >;
+export interface SessionSingletonBase {
+  context: Record<string, unknown>;
+}
+
+export interface EngineSingletonBase {
+  context: Record<string, unknown>;
 }
 
 export type Prettify<T> = {

@@ -12,35 +12,35 @@ Most of the current TypeScript / Some JavaScript code is from Elysia, and the AP
 // state and helpers are correctly inferred every step of the way
 // a rule is only evaluated if the schema matches the fact inputted
 
-const helperFromAnotherEngine = new Engine().helper(
+const helperFromAnotherEngine = new Engine().context(
   "log",
-  (_, message: string) => {
+  (message: string) => {
     console.log(message);
   }
 );
 
 const engine = new Engine()
   .use(helperFromAnotherEngine)
-  .state({
+  .context({
     totalFines: 0,
     violations: [] as string[],
     latestViolation: new Date(0),
-  })
-  .helper("addFine", (state, fine: number) => {
-    state.totalFines += fine;
-  })
-  .helper("addViolation", (state, violation: string) => {
-    state.violations.push(violation);
+    addFine(fine: number) {
+      this.totalFines += fine;
+    },
+    addViolation(violation: string) {
+      this.violations.push(violation);
+    },
   })
   .rule(
     "traffic-violation",
-    (facts, { state, helpers }) => {
-      helpers.log(state, "logging in this rule");
-      helpers.addFine(state, facts.violation.fine);
-      helpers.addViolation(state, facts.violation.type);
+    (facts, { context }) => {
+      context.log("logging in this rule");
+      context.addFine(facts.violation.fine);
+      context.addViolation(facts.violation.type);
 
-      if (facts.violation.date > state.latestViolation) {
-        state.latestViolation = facts.violation.date;
+      if (facts.violation.date > context.latestViolation) {
+        context.latestViolation = facts.violation.date;
       }
     },
     {
@@ -55,4 +55,20 @@ const engine = new Engine()
       }),
     }
   );
+
+const session = engine.createSession();
+
+session.insert({
+  violation: {
+    type: "Speeding",
+    date: new Date("2023-11-15"),
+    fine: 250.0,
+    location: "Main Street",
+    speed: 65,
+  },
+});
+
+session.fire();
+
+console.log(session.context);
 ```

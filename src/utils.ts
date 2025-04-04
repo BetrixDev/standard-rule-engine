@@ -1,3 +1,5 @@
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+
 export const isNotEmpty = (obj?: Object) => {
   if (!obj) return false;
 
@@ -56,3 +58,26 @@ export const mergeDeep = <
 
   return target as A & B;
 };
+
+export function standardValidate<T extends StandardSchemaV1>(
+  schema: T,
+  input: StandardSchemaV1.InferInput<T>
+) {
+  let result = schema["~standard"].validate(input);
+
+  if (result instanceof Promise) {
+    throw new Error("Facts input must be synchronous");
+  }
+
+  if (result.issues) {
+    return {
+      success: false as const,
+      data: null,
+    };
+  }
+
+  return {
+    success: true as const,
+    data: result.value as StandardSchemaV1.InferOutput<T>,
+  };
+}

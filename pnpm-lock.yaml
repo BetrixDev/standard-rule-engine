@@ -8,38 +8,41 @@ importers:
 
   .:
     dependencies:
-      arktype:
-        specifier: ^2.1.16
-        version: 2.1.16
+      '@standard-schema/spec':
+        specifier: ^1.0.0
+        version: 1.0.0
+      clone:
+        specifier: ^2.1.2
+        version: 2.1.2
       zod:
         specifier: ^3.24.2
         version: 3.24.2
+    devDependencies:
+      '@types/clone':
+        specifier: ^2.1.4
+        version: 2.1.4
 
 packages:
 
-  '@ark/schema@0.45.6':
-    resolution: {integrity: sha512-uI/z6kAabOKeFxbJK2w26dD0FZLutL0LTw0o3EZsX+UC4exc34YUVkm7/wuUMvc5Z27IVDjoaZp9o7X4jOFAbg==}
+  '@standard-schema/spec@1.0.0':
+    resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
 
-  '@ark/util@0.45.6':
-    resolution: {integrity: sha512-eI8Y1X0+271Q1p8qU39tkyrzIVMZIuymzixzVD0UL7k+HJaPhbbrjuKW/1CZzQ64tc+ugl7z2kP01YlAMA5h7A==}
+  '@types/clone@2.1.4':
+    resolution: {integrity: sha512-NKRWaEGaVGVLnGLB2GazvDaZnyweW9FJLLFL5LhywGJB3aqGMT9R/EUoJoSRP4nzofYnZysuDmrEJtJdAqUOtQ==}
 
-  arktype@2.1.16:
-    resolution: {integrity: sha512-KEuoEtpmbNVAIZqyLE+ox4Ga/6ED7Oe3Ra90sxGe4ZnufLz8AH49Xqis0i6oNEq23KmpduRLZRfS+iTAkjnfDw==}
+  clone@2.1.2:
+    resolution: {integrity: sha512-3Pe/CF1Nn94hyhIYpjtiLhdCoEoz0DqQ+988E9gmeEdQZlojxnOb74wctFyuwWQHzqyf9X7C7MG8juUpqBJT8w==}
+    engines: {node: '>=0.8'}
 
   zod@3.24.2:
     resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
 
 snapshots:
 
-  '@ark/schema@0.45.6':
-    dependencies:
-      '@ark/util': 0.45.6
+  '@standard-schema/spec@1.0.0': {}
 
-  '@ark/util@0.45.6': {}
+  '@types/clone@2.1.4': {}
 
-  arktype@2.1.16:
-    dependencies:
-      '@ark/schema': 0.45.6
-      '@ark/util': 0.45.6
+  clone@2.1.2: {}
 
   zod@3.24.2: {}
