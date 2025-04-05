@@ -1,4 +1,4 @@
-import type { StandardSchemaV1 } from '@standard-schema/spec';
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
 export interface SessionSingletonBase {
   context: Record<string, unknown>;
@@ -21,7 +21,7 @@ export type Reconcile<
   Override extends boolean = false,
   // Detect Stack limit, eg. circular dependency
   Stack extends number[] = [],
-> = Stack['length'] extends 16
+> = Stack["length"] extends 16
   ? A
   : Override extends true
     ? {

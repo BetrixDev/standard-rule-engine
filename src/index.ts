@@ -1,12 +1,12 @@
-import { mergeDeep, standardValidate } from './utils';
+import { mergeDeep, standardValidate } from "./utils";
 import type {
   Reconcile,
   EngineSingletonBase,
   SessionSingletonBase,
   DeepReadonly,
-} from './types';
-import clone from 'clone';
-import type { StandardSchemaV1 } from '@standard-schema/spec';
+} from "./types";
+import clone from "clone";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
 export type AnyEngine = Engine<any>;
 
@@ -71,18 +71,18 @@ export class Engine<
     globalSchema: undefined;
   },
 > {
-  '~types' = {
+  "~types" = {
     Singleton: {} as Singleton,
   };
 
-  private initialContext = {} as Singleton['context'];
+  private initialContext = {} as Singleton["context"];
   private rules: Rule[] = [];
   private globalSchema: StandardSchemaV1 | undefined;
 
   schema<const GlobalFactsSchema extends StandardSchemaV1>(
     schema: GlobalFactsSchema,
   ): Engine<{
-    context: Singleton['context'];
+    context: Singleton["context"];
     globalSchema: GlobalFactsSchema;
   }> {
     this.globalSchema = schema;
@@ -93,19 +93,19 @@ export class Engine<
     name: Name,
     value: Value,
   ): Engine<{
-    context: Reconcile<Singleton['context'], { [key in Name]: Value }>;
-    globalSchema: Singleton['globalSchema'];
+    context: Reconcile<Singleton["context"], { [key in Name]: Value }>;
+    globalSchema: Singleton["globalSchema"];
   }>;
   context<IncomingContext extends Record<string, unknown>>(
     context: IncomingContext,
   ): Engine<{
-    context: Reconcile<Singleton['context'], IncomingContext>;
-    globalSchema: Singleton['globalSchema'];
+    context: Reconcile<Singleton["context"], IncomingContext>;
+    globalSchema: Singleton["globalSchema"];
   }>;
   context(nameOrContext: string | Record<string, unknown>, value?: unknown) {
-    if (value === undefined && typeof nameOrContext === 'object') {
+    if (value === undefined && typeof nameOrContext === "object") {
       this.initialContext = mergeDeep(this.initialContext, nameOrContext);
-    } else if (typeof nameOrContext === 'string') {
+    } else if (typeof nameOrContext === "string") {
       this.initialContext = mergeDeep(this.initialContext, {
         [nameOrContext]: value,
       });
@@ -116,9 +116,9 @@ export class Engine<
 
   rule<
     const RuleName extends string,
-    const FactsSchema extends Singleton['globalSchema'] extends undefined
+    const FactsSchema extends Singleton["globalSchema"] extends undefined
       ? StandardSchemaV1 | undefined
-      : Singleton['globalSchema'],
+      : Singleton["globalSchema"],
   >(
     name: RuleName,
     handler: (
@@ -127,14 +127,14 @@ export class Engine<
           ? StandardSchemaV1.InferOutput<FactsSchema>
           : unknown
       >,
-      { context }: { context: Singleton['context'] },
+      { context }: { context: Singleton["context"] },
     ) => void,
     meta?: {
       schema?: FactsSchema;
     },
   ): Engine<{
-    context: Singleton['context'];
-    globalSchema: Singleton['globalSchema'];
+    context: Singleton["context"];
+    globalSchema: Singleton["globalSchema"];
   }> {
     this.rules.push({
       name,
@@ -150,8 +150,8 @@ export class Engine<
   use<const NewEngine extends AnyEngine>(
     instance: NewEngine,
   ): Engine<{
-    context: Singleton['context'] & NewEngine['~types']['Singleton']['context'];
-    globalSchema: Singleton['globalSchema'];
+    context: Singleton["context"] & NewEngine["~types"]["Singleton"]["context"];
+    globalSchema: Singleton["globalSchema"];
   }> {
     // TODO: Rules coming from other instances should inherit instance scoped schemas (when those exist)
     this.rules = [...this.rules, ...instance.rules];
@@ -164,7 +164,7 @@ export class Engine<
   }
 
   createSession() {
-    return new Session<Singleton['context']>(
+    return new Session<Singleton["context"]>(
       clone(this.initialContext),
       this.rules,
       this.globalSchema,

@@ -1,4 +1,4 @@
-import type { StandardSchemaV1 } from '@standard-schema/spec';
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
 export const isNotEmpty = (obj?: Object) => {
   if (!obj) return false;
@@ -9,19 +9,19 @@ export const isNotEmpty = (obj?: Object) => {
 };
 
 export const isClass = (v: Object) =>
-  (typeof v === 'function' && /^\s*class\s+/.test(v.toString())) ||
+  (typeof v === "function" && /^\s*class\s+/.test(v.toString())) ||
   // Handle Object.create(null)
   (v.toString &&
     // Handle import * as Sentry from '@sentry/bun'
     // This also handle [object Date], [object Array]
     // and FFI value like [object Prisma]
-    v.toString().startsWith('[object ') &&
-    v.toString() !== '[object Object]') ||
+    v.toString().startsWith("[object ") &&
+    v.toString() !== "[object Object]") ||
   // If object prototype is not pure, then probably a class-like object
   isNotEmpty(Object.getPrototypeOf(v));
 
 const isObject = (item: any): item is Object =>
-  item && typeof item === 'object' && !Array.isArray(item);
+  item && typeof item === "object" && !Array.isArray(item);
 
 export const mergeDeep = <
   A extends Record<string, any>,
@@ -63,10 +63,10 @@ export function standardValidate<T extends StandardSchemaV1>(
   schema: T,
   input: StandardSchemaV1.InferInput<T>,
 ) {
-  let result = schema['~standard'].validate(input);
+  let result = schema["~standard"].validate(input);
 
   if (result instanceof Promise) {
-    throw new Error('Facts input must be synchronous');
+    throw new Error("Facts input must be synchronous");
   }
 
   if (result.issues) {

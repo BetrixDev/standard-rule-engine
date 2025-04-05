@@ -11,7 +11,7 @@ The API is very much inspired by [Elysia](https://elysiajs.com)
 Engines are modular building blocks that can be combined and chained, allowing you to break down complex functionality into smaller, reusable components.
 
 ```ts
-import { Engine } from 'standard-rule-engine';
+import { Engine } from "standard-rule-engine";
 
 // We can't do anything with this yet
 const engine = new Engine();
@@ -25,10 +25,10 @@ For our engine to actually do anything, we need to create rules that will be run
 > Notice the user of method chaining in the example below. This is crucial to allow for correct type inferencing throughout the library.
 
 ```ts
-import { Engine } from 'standard-rule-engine';
+import { Engine } from "standard-rule-engine";
 
-const engine = new Engine().rule('ruleName', (facts) => {
-  console.log('I will be run for every set of facts', facts);
+const engine = new Engine().rule("ruleName", (facts) => {
+  console.log("I will be run for every set of facts", facts);
 });
 ```
 
@@ -40,11 +40,11 @@ We can define a custom schema for a rule's facts so that the rule is only run wh
 > Any validation library that implements the [Standard Schema](https://standardschema.dev) is supported. (zod, arktype, valibot, etc)
 
 ```ts
-import { Engine } from 'standard-rule-engine';
-import { z } from 'zod';
+import { Engine } from "standard-rule-engine";
+import { z } from "zod";
 
 const engine = new Engine().rule(
-  'ruleName',
+  "ruleName",
   (facts) => {
     // facts is now strongly typed to what the `schema` is
     console.log(`The user's age is ${facts.age}`);
@@ -59,60 +59,53 @@ const engine = new Engine().rule(
 
 #### Engine scoped schemas
 
-You can call the `.schema()` method on an Engine class to have all rules that directly build off of that engine have their facts derrived from that schema. If a rule attempts to define its own schema when its parent engine has a scoped schema, the rule's schema __must__ extend the engine's schema or there will be an error.
+You can call the `.schema()` method on an Engine class to have all rules that directly build off of that engine have their facts derrived from that schema. If a rule attempts to define its own schema when its parent engine has a scoped schema, the rule's schema **must** extend the engine's schema or there will be an error.
 
 ```ts
-import { Engine } from 'standard-rule-engine';
-import { z } from 'zod';
+import { Engine } from "standard-rule-engine";
+import { z } from "zod";
 
 const engine = new Engine()
   .schema(z.object({ age: z.number() }))
-  .rule(
-    'ruleName',
-    (facts) => {
-      // facts is now strongly typed to what the `schema` is
-      console.log(`The user's age is ${facts.age}`);
-    },
-  );
+  .rule("ruleName", (facts) => {
+    // facts is now strongly typed to what the `schema` is
+    console.log(`The user's age is ${facts.age}`);
+  });
 ```
 
 ```ts
-import { Engine } from 'standard-rule-engine';
-import { z } from 'zod';
+import { Engine } from "standard-rule-engine";
+import { z } from "zod";
 
-const engine = new Engine()
-  .schema(z.object({ age: z.number() }))
-  .rule(
-    'ruleName',
-    (facts) => {
-      console.log(`The user's age is ${facts.age}`);
-    },
-    {
-      schema: z.object({
-        randomProperty: z.string(), // Error on this line because this schema doesn't extend the scoped schema
-      }),
-    },
-  );
+const engine = new Engine().schema(z.object({ age: z.number() })).rule(
+  "ruleName",
+  (facts) => {
+    console.log(`The user's age is ${facts.age}`);
+  },
+  {
+    schema: z.object({
+      randomProperty: z.string(), // Error on this line because this schema doesn't extend the scoped schema
+    }),
+  },
+);
 ```
 
 ```ts
-import { Engine } from 'standard-rule-engine';
-import { z } from 'zod';
+import { Engine } from "standard-rule-engine";
+import { z } from "zod";
 
-const engine = new Engine()
-  .schema(z.object({ age: z.number() }))
-  .rule(
-    'ruleName',
-    (facts) => {
-      console.log(`The user's age is ${facts.age}`);
-    },
-    {
-      schema: z.object({
-        age: z.number(),
-        randomProperty: z.string(), // This one doesn't error
-      }),
-    },
-  );
+const engine = new Engine().schema(z.object({ age: z.number() })).rule(
+  "ruleName",
+  (facts) => {
+    console.log(`The user's age is ${facts.age}`);
+  },
+  {
+    schema: z.object({
+      age: z.number(),
+      randomProperty: z.string(), // This one doesn't error
+    }),
+  },
+);
 ```
 
 ### Context
@@ -120,11 +113,11 @@ const engine = new Engine()
 For our rules to actually do anything meaningful, they have to mutate context. Context is defined on the Engine using the `.context()` method. Context is unique between sessions, and is shared between rules run in that session.
 
 ```ts
-import { Engine } from 'standard-rule-engine';
+import { Engine } from "standard-rule-engine";
 
 const engine = new Engine()
-  .context('amountOfRulesRun', 0)
-  .rule('ruleName', (facts, { context }) => {
+  .context("amountOfRulesRun", 0)
+  .rule("ruleName", (facts, { context }) => {
     // `context` is fully inferred. This is why method chaining is so useful
     context.amountOfRulesRun++;
   });
@@ -135,12 +128,12 @@ const engine = new Engine()
 Context can be called with either the name of the key in context and value, or by passing in an object as the first and only parameter. When an object is passed in, it is deeply merged with the current contexts.
 
 ```ts
-import { Engine } from 'standard-rule-engine';
+import { Engine } from "standard-rule-engine";
 
 const engine = new Engine()
-  .context({ hello: 'world' })
-  .context('amountOfRulesRun', 0)
-  .rule('ruleName', (facts, { context }) => {
+  .context({ hello: "world" })
+  .context("amountOfRulesRun", 0)
+  .rule("ruleName", (facts, { context }) => {
     // `context` is fully inferred. This is why method chaining is so useful
     context.amountOfRulesRun++;
     console.log(context.hello);
@@ -152,15 +145,15 @@ const engine = new Engine()
 Context can hold things other than primitives, such as functions. This is useful for having helper methods that can be shared between rules.
 
 ```ts
-import { Engine } from 'standard-rule-engine';
+import { Engine } from "standard-rule-engine";
 
 const engine = new Engine()
   .context({ conditions: [] as string[] }) // Cast the array to more specific type for better inference
-  .context('addCondition', (context, conditionName: string) => {
+  .context("addCondition", (context, conditionName: string) => {
     context.conditions.push({ name: conditionName, appliedAt: new Date() });
   })
-  .rule('ruleName', (facts, { context }) => {
-    context.addCondition('Very bad condition');
+  .rule("ruleName", (facts, { context }) => {
+    context.addCondition("Very bad condition");
   });
 ```
 
@@ -171,11 +164,11 @@ Sessions are similar to how they behave in [NRules](https://nrules.net/index.htm
 [TypeScript Playground Link](https://www.typescriptlang.org/play/?#code/JYWwDg9gTgLgBAbzgUQHYHNioKZwL5wBmUEIcARAM4wCGqAJjVPQLRQCuANti9hltnIBYAFChIsRHABe+IiTLlpEesJGiAxhFTU4fTDjgBeODgDuKfjgAUASlFw4AOi2oY2AB4xr5YJQCC9Fww5AA0RDSclNj2Io5OHNw+fgCq0VCBwQBKXILh1oQ0GjCU4Uiu7l74tsYAfIgOjnAVnjBOfpmc8CaFxZRONOi4tSYAjAAcANyNeGWNjpQaABbYIDQAXDJOEABGAFbYxdYI802D2JvSTqjsIDvYUHahp3i2z3HV0+oirrrRlJRgNpjHorNgXFBsDR3ABlbAAoGoOxfUT-QHado6B7eJDnTYTT5wAD0RLgAEksZJeiU4DAIHAOKgGblKHBBjQsNRRKj4ejUE5CMBIcjiaTkAA3SLsaG4SKcZncVkrSHcn7aSgQbhOTgQdDWNGIlzaSptDpBLq2SaiuAAAxaXhtcD8zWgkOKnAAnrSPWBsPQ4DsaNF-cCYCtQQZsAByVn0bCC1DAGCIoA)
 
 ```ts
-import { Engine } from 'standard-rule-engine';
-import { z } from 'zod';
+import { Engine } from "standard-rule-engine";
+import { z } from "zod";
 
-const engine = new Engine().context('isAdult', false).rule(
-  'isUserAdultRule',
+const engine = new Engine().context("isAdult", false).rule(
+  "isUserAdultRule",
   (facts, { context }) => {
     context.isAdult = facts.age >= 18;
   },
