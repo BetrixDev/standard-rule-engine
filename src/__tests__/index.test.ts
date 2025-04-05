@@ -66,6 +66,62 @@ describe('Engine', () => {
 
       expect(session.context.rulesRun).toBe(3);
     });
+
+    describe('Global Schema', () => {
+      it('should use the global schema if no rule schema is provided and run the rule because the schema is valid', () => {
+        const engine = new Engine()
+          .schema(z.object({ age: z.number() }))
+          .context('rulesRun', 0)
+          .rule('incrementRulesRun', (_, { context }) => {
+            context.rulesRun++;
+          });
+
+        const session = engine.createSession();
+        session.insert({ age: 18 });
+        session.fire();
+
+        expect(session.context.rulesRun).toBe(1);
+      });
+
+      it('should not run the rule if the schema is invalid', () => {
+        const engine = new Engine()
+          .schema(z.object({ age: z.number() }))
+          .context('rulesRun', 0)
+          .rule('incrementRulesRun', (_, { context }) => {
+            context.rulesRun++;
+          });
+
+        const session = engine.createSession();
+        session.insert({ age: 'not a number' });
+        session.fire();
+
+        expect(session.context.rulesRun).toBe(0);
+      });
+
+      it('should not propagate the an engines schema to one above it', () => {
+        const engine = new Engine()
+          .context('outsideRulesRun', 0)
+          .use(
+            new Engine()
+              .context('totalRulesRun', 0)
+              .schema(z.object({ age: z.number() }))
+              .rule('incrementTotalRulesRun', (_, { context }) => {
+                context.totalRulesRun++;
+              }),
+          )
+          .rule('testRule', (_, { context }) => {
+            context.totalRulesRun++;
+            context.outsideRulesRun++;
+          });
+
+        const session = engine.createSession();
+        session.insert({ age: 18 });
+        session.fire();
+
+        expect(session.context.totalRulesRun).toBe(2);
+        expect(session.context.outsideRulesRun).toBe(1);
+      });
+    });
   });
 
   describe('Context merging', () => {

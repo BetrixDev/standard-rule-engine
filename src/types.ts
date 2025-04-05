@@ -1,9 +1,12 @@
+import type { StandardSchemaV1 } from '@standard-schema/spec';
+
 export interface SessionSingletonBase {
   context: Record<string, unknown>;
 }
 
 export interface EngineSingletonBase {
   context: Record<string, unknown>;
+  globalSchema: StandardSchemaV1 | undefined;
 }
 
 export type Prettify<T> = {
