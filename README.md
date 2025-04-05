@@ -46,7 +46,7 @@ import { z } from 'zod';
 const engine = new Engine().rule(
   'ruleName',
   (facts) => {
-    // facts is now strongly typed to the `schema` is
+    // facts is now strongly typed to what the `schema` is
     console.log(`The user's age is ${facts.age}`);
   },
   {
@@ -55,6 +55,64 @@ const engine = new Engine().rule(
     }),
   },
 );
+```
+
+#### Engine scoped schemas
+
+You can call the `.schema()` method on an Engine class to have all rules that directly build off of that engine have their facts derrived from that schema. If a rule attempts to define its own schema when its parent engine has a scoped schema, the rule's schema __must__ extend the engine's schema or there will be an error.
+
+```ts
+import { Engine } from 'standard-rule-engine';
+import { z } from 'zod';
+
+const engine = new Engine()
+  .schema(z.object({ age: z.number() }))
+  .rule(
+    'ruleName',
+    (facts) => {
+      // facts is now strongly typed to what the `schema` is
+      console.log(`The user's age is ${facts.age}`);
+    },
+  );
+```
+
+```ts
+import { Engine } from 'standard-rule-engine';
+import { z } from 'zod';
+
+const engine = new Engine()
+  .schema(z.object({ age: z.number() }))
+  .rule(
+    'ruleName',
+    (facts) => {
+      console.log(`The user's age is ${facts.age}`);
+    },
+    {
+      schema: z.object({
+        randomProperty: z.string(), // Error on this line because this schema doesn't extend the scoped schema
+      }),
+    },
+  );
+```
+
+```ts
+import { Engine } from 'standard-rule-engine';
+import { z } from 'zod';
+
+const engine = new Engine()
+  .schema(z.object({ age: z.number() }))
+  .rule(
+    'ruleName',
+    (facts) => {
+      console.log(`The user's age is ${facts.age}`);
+    },
+    {
+      schema: z.object({
+        age: z.number(),
+        randomProperty: z.string(), // This one doesn't error
+      }),
+    },
+  );
 ```
 
 ### Context
