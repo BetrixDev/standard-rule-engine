@@ -1,5 +1,11 @@
 # standard-rule-engine
 
+## 0.1.0
+
+### Minor Changes
+
+- 9491523: Add support for globally scoped schema
+
 ## 0.0.4
 
 ### Patch Changes
