@@ -62,6 +62,8 @@ class Session<Context extends Record<string, unknown>> {
         });
       }
     }
+
+    return this;
   }
 }
 

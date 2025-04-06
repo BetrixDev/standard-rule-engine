@@ -1,0 +1,5 @@
+---
+title: Rules
+---
+
+# {{ $frontmatter.title }}
