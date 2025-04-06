@@ -1,5 +1,11 @@
 # standard-rule-engine
 
+## 0.1.1
+
+### Patch Changes
+
+- ef1f878: docs
+
 ## 0.1.0
 
 ### Minor Changes
