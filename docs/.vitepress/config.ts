@@ -46,4 +46,3 @@ export default defineConfig({
     languages: ["js", "jsx", "ts", "tsx"],
   },
 });
-

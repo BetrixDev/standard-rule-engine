@@ -20,4 +20,3 @@ features:
   - title: Simple
     details: The API is flexible, but very easy to learn
 ---
-
