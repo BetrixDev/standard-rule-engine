@@ -47,7 +47,7 @@ For any methods you call on an engine, you must use method chaining in order
 to ensure type safety.
 :::
 
-Learn more about [Engines](/docs/the-engine)
+Learn more about [Engines](/the-engine)
 
 ## Creating a Rule
 
@@ -95,11 +95,11 @@ const engine = new Engine().rule(
 ```
 
 ::: info
-All rule facts are immutable. See [context](/docs/context) to see how to
+All rule facts are immutable. See [context](/context) to see how to
 return data from a rule.
 :::
 
-Learn more about [Rules](/docs/the-rule)
+Learn more about [Rules](/rules)
 
 ## Running rules with a session
 
@@ -127,7 +127,7 @@ session.insert(2); // [!code focus]
 session.fire(); // [!code focus]
 ```
 
-Learn more about [Sessions](/docs/sessions)
+Learn more about [Sessions](/sessions)
 
 ## Using context to get data out
 
@@ -167,4 +167,4 @@ session.fire();
 console.log(session.context.message); // [!code highlight]
 ```
 
-Learn more about [Context](/docs/context)
+Learn more about [Context](/context)
