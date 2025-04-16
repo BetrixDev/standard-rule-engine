@@ -24,7 +24,10 @@ export default defineConfig({
       },
       {
         text: "Examples",
-        items: [{ text: "Hono Full", link: "/examples/hono" }],
+        items: [
+          { text: "Snippets", link: "/examples/snippets" },
+          { text: "Hono Full", link: "/examples/hono" },
+        ],
       },
     ],
     socialLinks: [

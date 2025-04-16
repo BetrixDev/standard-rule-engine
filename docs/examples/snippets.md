@@ -77,15 +77,16 @@ const engine = new Engine()
   });
 
 // Usage example
-const session = engine.createSession();
-session.insert({
-  creditScore: 720,
-  annualIncome: 75000,
-  existingDebt: 15000,
-  employmentHistory: 5,
-  hasBankruptcy: false,
-});
-session.fire();
+const session = engine
+  .createSession()
+  .insert({
+    creditScore: 720,
+    annualIncome: 75000,
+    existingDebt: 15000,
+    employmentHistory: 5,
+    hasBankruptcy: false,
+  })
+  .fire();
 
 console.log(session.context);
 // {
@@ -174,17 +175,18 @@ const engine = new Engine()
   );
 
 // Usage example
-const session = engine.createSession();
-session.insert({
-  items: [
-    { price: 100, category: "electronics", quantity: 2 },
-    { price: 50, category: "accessories", quantity: 5 },
-  ],
-  customerType: "vip",
-  orderDate: new Date("2023-12-15"),
-  previousOrders: 8,
-});
-session.fire();
+const session = engine
+  .createSession()
+  .insert({
+    items: [
+      { price: 100, category: "electronics", quantity: 2 },
+      { price: 50, category: "accessories", quantity: 5 },
+    ],
+    customerType: "vip",
+    orderDate: new Date("2023-12-15"),
+    previousOrders: 8,
+  })
+  .fire();
 
 console.log(session.context);
 // {
@@ -196,7 +198,7 @@ console.log(session.context);
 
 ## Content Moderation System
 
-```ts
+```ts twoslash
 import { Engine } from "standard-rule-engine";
 import { z } from "zod";
 
@@ -264,17 +266,18 @@ const engine = new Engine()
   });
 
 // Usage example
-const session = engine.createSession();
-session.insert({
-  text: "This is a great product! Buy now for 50% off!",
-  author: {
-    reputation: -5,
-    isVerified: false,
-  },
-  contentType: "comment",
-  timestamp: new Date(),
-});
-session.fire();
+const session = engine
+  .createSession()
+  .insert({
+    text: "This is a great product! Buy now for 50% off!",
+    author: {
+      reputation: -5,
+      isVerified: false,
+    },
+    contentType: "comment",
+    timestamp: new Date(),
+  })
+  .fire();
 
 console.log(session.context);
 // {

@@ -87,7 +87,6 @@ const engine = new Engine().rule(
       console.log("odd");
     }
   },
-  // [!code focus:4]
   {
     schema: z.number(),
   },
@@ -120,11 +119,7 @@ const engine = new Engine().rule("is-even", (fact) => {
   }
 });
 
-const session = engine.createSession(); // [!code focus]
-
-session.insert(1); // [!code focus]
-session.insert(2); // [!code focus]
-session.fire(); // [!code focus]
+const session = engine.createSession().insert(1).insert(2).fire();
 ```
 
 Learn more about [Sessions](/sessions)
@@ -142,7 +137,6 @@ const engine = new Engine()
   .rule(
     "hasPlayerFouledOut",
     (facts, { context }) => {
-      // [!code highlight]
       if (
         (facts.gameDuration === 40 && facts.personalFoulCount >= 5) ||
         (facts.gameDuration === 48 && facts.personalFoulCount >= 6)
@@ -160,9 +154,8 @@ const engine = new Engine()
 
 const session = engine
   .createSession()
-  .insert({ personalFoulCount: 5, gameDuration: 40 });
-
-session.fire();
+  .insert({ personalFoulCount: 5, gameDuration: 40 })
+  .fire();
 
 console.log(session.context.message); // [!code highlight]
 ```
@@ -182,7 +175,7 @@ const engine = new Engine()
   .helper("increment", (context) => {
     context.count++;
   })
-  .helper("add", (context, a: number, b: number) => {
+  .helper("add", (_, a: number, b: number) => {
     return a + b;
   })
   .rule("use-helper", (_, { context, helpers }) => {
@@ -191,9 +184,7 @@ const engine = new Engine()
     console.log(`Sum: ${sum}`);
   });
 
-const session = engine.createSession();
-session.insert({});
-session.fire();
+const session = engine.createSession().insert({}).fire();
 
 console.log(session.context.count); // 1
 ```

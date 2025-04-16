@@ -39,22 +39,22 @@ const engine = new Engine()
       message,
     });
   })
-  .rule("credit-score-check", (facts, { context, helper }) => {
+  .rule("credit-score-check", (facts, { context, helpers }) => {
     if (facts.creditScore < 640) {
-      helper.addCondition("credit-score-check", "Credit score is too low");
+      helpers.addCondition("credit-score-check", "Credit score is too low");
     }
   })
-  .rule("open-credit-lines-check", (facts, { context, helper }) => {
+  .rule("open-credit-lines-check", (facts, { context, helpers }) => {
     if (facts.openCreditLines > 2) {
-      helper.addCondition(
+      helpers.addCondition(
         "open-credit-lines-check",
         "Open credit lines are too high",
       );
     }
   })
-  .rule("deragtory-events-check", (facts, { context, helper }) => {
+  .rule("deragtory-events-check", (facts, { context, helpers }) => {
     if (facts.deragtoryEvents > 5) {
-      helper.addCondition(
+      helpers.addCondition(
         "deragtory-events-check",
         "Deragtory events are too high",
       );
@@ -72,8 +72,7 @@ app.get("/user/:id/conditions", (c) => {
     return c.json({ error: "User not found" }, 404);
   }
 
-  const session = engine.createSession().insert(user);
-  session.fire();
+  const session = engine.createSession().insert(user).fire();
 
   return c.json({
     conditions: session.context.conditions,
