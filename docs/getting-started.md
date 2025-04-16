@@ -71,6 +71,7 @@ const engine = new Engine().rule("is-even", (fact) => {
 
 Since we support the [Standard Schema](https://standardschema.dev), you can use any schema validation library to validate and strongly type your facts.
 
+<!-- prettier-ignore-start -->
 ```ts twoslash
 import { Engine } from "standard-rule-engine";
 import { z } from "zod";
@@ -87,11 +88,12 @@ const engine = new Engine().rule(
       console.log("odd");
     }
   },
-  {
-    schema: z.number(),
-  },
+  { // [!code ++]
+    schema: z.number(), // [!code ++]
+  }, // [!code ++]
 );
 ```
+<!-- prettier-ignore-end -->
 
 ::: info
 All rule facts are immutable. See [context](/context) to see how to
@@ -119,7 +121,8 @@ const engine = new Engine().rule("is-even", (fact) => {
   }
 });
 
-const session = engine.createSession().insert(1).insert(2).fire();
+// We can chain all of these methods together
+const session = engine.createSession().insert(1).insert(2).fire(); // [!code ++]
 ```
 
 Learn more about [Sessions](/sessions)
@@ -157,7 +160,8 @@ const session = engine
   .insert({ personalFoulCount: 5, gameDuration: 40 })
   .fire();
 
-console.log(session.context.message); // [!code highlight]
+console.log(session.context.message); // "Player has fouled out"  // [!code highlight]
+//                           ^?
 ```
 
 Learn more about [Context](/context)

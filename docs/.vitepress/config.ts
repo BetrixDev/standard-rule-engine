@@ -20,6 +20,7 @@ export default defineConfig({
           { text: "Rules", link: "/rules" },
           { text: "Context", link: "/context" },
           { text: "Sessions", link: "/sessions" },
+          { text: "Helpers", link: "/helpers" },
         ],
       },
       {
