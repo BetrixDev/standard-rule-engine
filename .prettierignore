@@ -1,5 +1,5 @@
 package.json
 **/package.json
-coverage
-dist
-pnpm-lock.yaml
+coverage/
+dist/
+**/pnpm-lock.yaml
