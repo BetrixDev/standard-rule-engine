@@ -87,10 +87,10 @@ const engine = new Engine().rule(
       console.log("odd");
     }
   },
+  // [!code focus:4]
   {
-    // [!code focus]
-    schema: z.number(), // [!code focus]
-  }, // [!code focus]
+    schema: z.number(),
+  },
 );
 ```
 
@@ -168,3 +168,42 @@ console.log(session.context.message); // [!code highlight]
 ```
 
 Learn more about [Context](/context)
+
+## Using helpers for reusable functions
+
+Helpers allow you to define reusable functions that have access to the engine's context. They are defined on the engine and can be accessed in rules via the `helpers` object.
+
+```ts twoslash
+import { Engine } from "standard-rule-engine";
+import { z } from "zod";
+
+const engine = new Engine()
+  .context("count", 0)
+  .helper("increment", (context) => {
+    context.count++;
+  })
+  .helper("add", (context, a: number, b: number) => {
+    return a + b;
+  })
+  .rule("use-helper", (_, { context, helpers }) => {
+    helpers.increment();
+    const sum = helpers.add(5, 3);
+    console.log(`Sum: ${sum}`);
+  });
+
+const session = engine.createSession();
+session.insert({});
+session.fire();
+
+console.log(session.context.count); // 1
+```
+
+Helpers are particularly useful for:
+
+1. **Reusable logic**: Define common operations that can be used across multiple rules
+2. **Complex calculations**: Encapsulate complex logic in a helper function
+3. **Shared functionality**: Create utility functions that can be used by any rule
+
+When defining a helper function, the context is always the first parameter. However, when calling a helper function in a rule, you don't need to pass the context - it's automatically injected for you.
+
+Learn more about [Helpers](/helpers)

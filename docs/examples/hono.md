@@ -33,28 +33,31 @@ type Condition = {
 const engine = new Engine()
   .context({ conditions: [] as Condition[] }) // Give conditions a more exact type using casting
   .schema(userSchema) // Only run rules in this engine if the facts match this schema
-  .rule("credit-score-check", (facts, { context }) => {
+  .helper("addCondition", (context, id: string, message: string) => {
+    context.conditions.push({
+      id,
+      message,
+    });
+  })
+  .rule("credit-score-check", (facts, { context, helper }) => {
     if (facts.creditScore < 640) {
-      context.conditions.push({
-        id: "credit-score-check",
-        message: "Credit score is too low",
-      });
+      helper.addCondition("credit-score-check", "Credit score is too low");
     }
   })
-  .rule("open-credit-lines-check", (facts, { context }) => {
+  .rule("open-credit-lines-check", (facts, { context, helper }) => {
     if (facts.openCreditLines > 2) {
-      context.conditions.push({
-        id: "open-credit-lines-check",
-        message: "Open credit lines are too high",
-      });
+      helper.addCondition(
+        "open-credit-lines-check",
+        "Open credit lines are too high",
+      );
     }
   })
-  .rule("deragtory-events-check", (facts, { context }) => {
+  .rule("deragtory-events-check", (facts, { context, helper }) => {
     if (facts.deragtoryEvents > 5) {
-      context.conditions.push({
-        id: "deragtory-events-check",
-        message: "Deragtory events are too high",
-      });
+      helper.addCondition(
+        "deragtory-events-check",
+        "Deragtory events are too high",
+      );
     }
   });
 

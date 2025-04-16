@@ -7,6 +7,7 @@ export interface SessionSingletonBase {
 export interface EngineSingletonBase {
   context: Record<string, unknown>;
   globalSchema: StandardSchemaV1 | undefined;
+  helpers: Record<string, Function>;
 }
 
 export type Prettify<T> = {

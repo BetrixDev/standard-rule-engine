@@ -1,10 +1,5 @@
 import { mergeDeep, standardValidate } from "./utils";
-import type {
-  Reconcile,
-  EngineSingletonBase,
-  SessionSingletonBase,
-  DeepReadonly,
-} from "./types";
+import type { Reconcile, EngineSingletonBase, DeepReadonly } from "./types";
 import clone from "clone";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 
@@ -18,14 +13,29 @@ type Rule = {
   };
 };
 
-class Session<Context extends Record<string, unknown>> {
+class Session<
+  Context extends Record<string, unknown>,
+  Helpers extends Record<string, Function>,
+> {
   private insertedFacts: unknown[] = [];
+  private wrappedHelpers: Record<string, Function>;
 
   constructor(
     public context: Context,
     private rules: Rule[],
     private globalSchema?: StandardSchemaV1 | undefined,
-  ) {}
+    helpers: Helpers = {} as Helpers,
+  ) {
+    this.wrappedHelpers = Object.entries(helpers).reduce(
+      (acc, [key, fn]) => {
+        acc[key] = (...args: any[]) => {
+          return fn(context, ...args);
+        };
+        return acc;
+      },
+      {} as Record<string, Function>,
+    );
+  }
 
   insert(facts: unknown) {
     this.insertedFacts.push(facts);
@@ -43,7 +53,10 @@ class Session<Context extends Record<string, unknown>> {
 
       for (const rule of this.rules) {
         if (!rule.meta?.schema && !this.globalSchema) {
-          rule.handler(facts, { context: this.context });
+          rule.handler(facts, {
+            context: this.context,
+            helpers: this.wrappedHelpers,
+          });
           continue;
         }
 
@@ -59,6 +72,7 @@ class Session<Context extends Record<string, unknown>> {
 
         rule.handler(validationResult.data, {
           context: this.context,
+          helpers: this.wrappedHelpers,
         });
       }
     }
@@ -71,6 +85,7 @@ export class Engine<
   const in out Singleton extends EngineSingletonBase = {
     context: {};
     globalSchema: undefined;
+    helpers: {};
   },
 > {
   "~types" = {
@@ -80,12 +95,14 @@ export class Engine<
   private initialContext = {} as Singleton["context"];
   private rules: Rule[] = [];
   private globalSchema: StandardSchemaV1 | undefined;
+  private helpers = {} as Singleton["helpers"];
 
   schema<const GlobalFactsSchema extends StandardSchemaV1>(
     schema: GlobalFactsSchema,
   ): Engine<{
     context: Singleton["context"];
     globalSchema: GlobalFactsSchema;
+    helpers: Singleton["helpers"];
   }> {
     this.globalSchema = schema;
     return this as any;
@@ -97,12 +114,14 @@ export class Engine<
   ): Engine<{
     context: Reconcile<Singleton["context"], { [key in Name]: Value }>;
     globalSchema: Singleton["globalSchema"];
+    helpers: Singleton["helpers"];
   }>;
   context<IncomingContext extends Record<string, unknown>>(
     context: IncomingContext,
   ): Engine<{
     context: Reconcile<Singleton["context"], IncomingContext>;
     globalSchema: Singleton["globalSchema"];
+    helpers: Singleton["helpers"];
   }>;
   context(nameOrContext: string | Record<string, unknown>, value?: unknown) {
     if (value === undefined && typeof nameOrContext === "object") {
@@ -112,6 +131,24 @@ export class Engine<
         [nameOrContext]: value,
       });
     }
+
+    return this as any;
+  }
+
+  helper<const Name extends string, Args extends any[], ReturnType>(
+    name: Name,
+    fn: (context: Singleton["context"], ...args: Args) => ReturnType,
+  ): Engine<{
+    context: Singleton["context"];
+    globalSchema: Singleton["globalSchema"];
+    helpers: Singleton["helpers"] & {
+      [key in Name]: (...args: Args) => ReturnType;
+    };
+  }> {
+    this.helpers = {
+      ...this.helpers,
+      [name]: fn,
+    } as any;
 
     return this as any;
   }
@@ -129,7 +166,10 @@ export class Engine<
           ? StandardSchemaV1.InferOutput<FactsSchema>
           : unknown
       >,
-      { context }: { context: Singleton["context"] },
+      {
+        context,
+        helpers,
+      }: { context: Singleton["context"]; helpers: Singleton["helpers"] },
     ) => void,
     meta?: {
       schema?: FactsSchema;
@@ -137,6 +177,7 @@ export class Engine<
   ): Engine<{
     context: Singleton["context"];
     globalSchema: Singleton["globalSchema"];
+    helpers: Singleton["helpers"];
   }> {
     this.rules.push({
       name,
@@ -154,6 +195,7 @@ export class Engine<
   ): Engine<{
     context: Singleton["context"] & NewEngine["~types"]["Singleton"]["context"];
     globalSchema: Singleton["globalSchema"];
+    helpers: Singleton["helpers"] & NewEngine["~types"]["Singleton"]["helpers"];
   }> {
     // TODO: Rules coming from other instances should inherit instance scoped schemas (when those exist)
     this.rules = [...this.rules, ...instance.rules];
@@ -161,15 +203,17 @@ export class Engine<
       this.initialContext,
       instance.initialContext,
     );
+    this.helpers = mergeDeep(this.helpers, instance.helpers) as any;
 
     return this as any;
   }
 
   createSession() {
-    return new Session<Singleton["context"]>(
+    return new Session<Singleton["context"], Singleton["helpers"]>(
       clone(this.initialContext),
       this.rules,
       this.globalSchema,
+      this.helpers,
     );
   }
 }
