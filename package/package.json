@@ -1,6 +1,6 @@
 {
   "name": "standard-rule-engine",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A simple rule engine that uses Standard Schema to validate facts",
   "keywords": [
     "rule",
