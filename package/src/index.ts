@@ -7,10 +7,9 @@ export type AnyEngine = Engine<any>;
 
 type Rule = {
   name: string;
+  priority: number;
   handler: (...args: any[]) => void;
-  meta?: {
-    schema?: StandardSchemaV1;
-  };
+  schema?: StandardSchemaV1;
 };
 
 class Session<
@@ -52,7 +51,7 @@ class Session<
       Object.freeze(facts);
 
       for (const rule of this.rules) {
-        if (!rule.meta?.schema && !this.globalSchema) {
+        if (!rule.schema && !this.globalSchema) {
           rule.handler(facts, {
             context: this.context,
             helpers: this.wrappedHelpers,
@@ -62,7 +61,7 @@ class Session<
 
         const validationResult = standardValidate(
           // @ts-expect-error
-          rule.meta?.schema ?? this.globalSchema,
+          rule.schema ?? this.globalSchema,
           facts,
         );
 
@@ -173,18 +172,27 @@ export class Engine<
     ) => void,
     meta?: {
       schema?: FactsSchema;
+      priority?: number;
     },
   ): Engine<{
     context: Singleton["context"];
     globalSchema: Singleton["globalSchema"];
     helpers: Singleton["helpers"];
   }> {
-    this.rules.push({
+    const newRule: Rule = {
       name,
       handler,
-      meta: {
-        schema: meta?.schema as any,
-      },
+      priority: meta?.priority ?? 1,
+      schema: meta?.schema as any,
+    };
+
+    this.rules.push(newRule);
+
+    this.rules.sort((a, b) => {
+      if (a.priority !== b.priority) {
+        return a.priority - b.priority;
+      }
+      return a.name.localeCompare(b.name);
     });
 
     return this as any;
@@ -197,7 +205,6 @@ export class Engine<
     globalSchema: Singleton["globalSchema"];
     helpers: Singleton["helpers"] & NewEngine["~types"]["Singleton"]["helpers"];
   }> {
-    // TODO: Rules coming from other instances should inherit instance scoped schemas (when those exist)
     this.rules = [...this.rules, ...instance.rules];
     this.initialContext = mergeDeep(
       this.initialContext,

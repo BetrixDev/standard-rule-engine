@@ -75,6 +75,41 @@ const engine = new Engine()
   );
 ```
 
+## Priority
+
+Rules can be given a priority to control the order they are executed in. Rules with a lower priority number are executed first. The default priority is 1.
+
+```ts twoslash
+import { Engine } from "standard-rule-engine";
+
+// ---cut---
+const engine = new Engine()
+  .rule(
+    "alwaysRunFirst",
+    (_, { context }) => {
+      console.log("im first");
+    },
+    {
+      priority: 0,
+    },
+  )
+  .rule(
+    "alwaysRunLast",
+    (_, { context }) => {
+      console.log("im last");
+    },
+    {
+      priority: 100,
+    },
+  );
+
+const session = engine.createSession().insert({}).fire();
+
+// Output:
+// im first
+// im last
+```
+
 ## Schema Validation
 
 Rules can specify a schema to validate facts. The schema property can take any schema validation library that implements the [Standard Schema](https://standardschema.dev).

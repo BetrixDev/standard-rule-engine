@@ -218,4 +218,55 @@ describe("Engine", () => {
       session.fire();
     });
   });
+
+  describe("Rules", () => {
+    it("should run the rules in order of priority, lowest first", () => {
+      const engine = new Engine()
+        .context("rulesRan", [] as string[])
+        .rule("high", (_, { context }) => {
+          context.rulesRan.push("high");
+        })
+        .rule(
+          "highest",
+          (_, { context }) => {
+            context.rulesRan.push("highest");
+          },
+          {
+            priority: 1000,
+          },
+        )
+        .rule(
+          "low",
+          (_, { context }) => {
+            context.rulesRan.push("low");
+          },
+          {
+            priority: 0,
+          },
+        );
+
+      const session = engine.createSession();
+      session.insert({});
+      session.fire();
+
+      expect(session.context.rulesRan).toEqual(["low", "high", "highest"]);
+    });
+
+    it("should run the rules in alphabetical order if they have the same priority", () => {
+      const engine = new Engine()
+        .context("rulesRan", [] as string[])
+        .rule("b", (_, { context }) => {
+          context.rulesRan.push("b");
+        })
+        .rule("a", (_, { context }) => {
+          context.rulesRan.push("a");
+        });
+
+      const session = engine.createSession();
+      session.insert({});
+      session.fire();
+
+      expect(session.context.rulesRan).toEqual(["a", "b"]);
+    });
+  });
 });
