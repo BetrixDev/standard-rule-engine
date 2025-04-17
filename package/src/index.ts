@@ -2,6 +2,7 @@ import { mergeDeep, standardValidate } from "./utils";
 import type { Reconcile, EngineSingletonBase, DeepReadonly } from "./types";
 import clone from "clone";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
+import type { ZodSchema } from "zod";
 
 export type AnyEngine = Engine<any>;
 
@@ -22,7 +23,6 @@ class Session<
   constructor(
     public context: Context,
     private rules: Rule[],
-    private globalSchema?: StandardSchemaV1 | undefined,
     helpers: Helpers = {} as Helpers,
   ) {
     this.wrappedHelpers = Object.entries(helpers).reduce(
@@ -51,7 +51,7 @@ class Session<
       Object.freeze(facts);
 
       for (const rule of this.rules) {
-        if (!rule.schema && !this.globalSchema) {
+        if (!rule.schema) {
           rule.handler(facts, {
             context: this.context,
             helpers: this.wrappedHelpers,
@@ -59,11 +59,7 @@ class Session<
           continue;
         }
 
-        const validationResult = standardValidate(
-          // @ts-expect-error
-          rule.schema ?? this.globalSchema,
-          facts,
-        );
+        const validationResult = standardValidate(rule.schema, facts);
 
         if (!validationResult.success) {
           continue;
@@ -183,7 +179,7 @@ export class Engine<
       name,
       handler,
       priority: meta?.priority ?? 1,
-      schema: meta?.schema as any,
+      schema: meta?.schema ?? this.globalSchema,
     };
 
     this.rules.push(newRule);
@@ -219,7 +215,6 @@ export class Engine<
     return new Session<Singleton["context"], Singleton["helpers"]>(
       clone(this.initialContext),
       this.rules,
-      this.globalSchema,
       this.helpers,
     );
   }

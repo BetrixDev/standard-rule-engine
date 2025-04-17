@@ -121,6 +121,37 @@ describe("Engine", () => {
         expect(session.context.totalRulesRun).toBe(2);
         expect(session.context.outsideRulesRun).toBe(1);
       });
+
+      describe("Changing the global schema", () => {
+        const engine = new Engine()
+          .context("rulesRan", [] as string[])
+          .schema(z.object({ age: z.number() }))
+          .rule("justNeedAge", (_, { context }) => {
+            context.rulesRan.push("justNeedAge");
+          })
+          .schema(z.object({ age: z.number(), name: z.string() }))
+          .rule("needAgeAndName", (_, { context }) => {
+            context.rulesRan.push("needAgeAndName");
+          });
+
+        it("should only run the justNeedAge rule if only name is in a fact", () => {
+          const session = engine.createSession().insert({ age: 18 }).fire();
+
+          expect(session.context.rulesRan).toEqual(["justNeedAge"]);
+        });
+
+        it("should run both rules if both are in a fact", () => {
+          const session = engine
+            .createSession()
+            .insert({ age: 18, name: "John" })
+            .fire();
+
+          expect(session.context.rulesRan).toEqual([
+            "justNeedAge",
+            "needAgeAndName",
+          ]);
+        });
+      });
     });
   });
 
