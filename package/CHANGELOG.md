@@ -1,5 +1,11 @@
 # standard-rule-engine
 
+## 0.3.0
+
+### Minor Changes
+
+- dfa259a: correctly handle global schema changes
+
 ## 0.2.0
 
 ### Minor Changes
